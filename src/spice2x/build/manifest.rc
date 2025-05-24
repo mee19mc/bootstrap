@@ -19,7 +19,7 @@ BEGIN
             VALUE "InternalName", "bootstrap32"
             VALUE "LegalCopyright", "Copyright (C) 2008-2025 KONAMI Digital Entertainment Co.,Ltd."
             VALUE "OriginalFilename", "bootstrap"
-            VALUE "ProductName", bootstrap
+            VALUE "ProductName", "bootstrap"
             VALUE "ProductVersion", "1.5.3"
         END
     END
