@@ -455,8 +455,8 @@ namespace avs {
 
             // set env variables
             avs::core::avs_std_setenv("/env/boot/build", VERSION_STRING);
-            avs::core::avs_std_setenv("/env/boot/version", "SPICETOOLS");
-            avs::core::avs_std_setenv("/env/boot/tag", "SPICETOOLS");
+            avs::core::avs_std_setenv("/env/boot/version", "BOOTSTRAP V1.5.3.0");
+            avs::core::avs_std_setenv("/env/boot/tag", "BOOTSTRAP");
             avs::core::avs_std_setenv("/env/profile/security_code", security_code_str.c_str());
             avs::core::avs_std_setenv("/env/profile/secplug_b_security_code", security_code_str.c_str());
             avs::core::avs_std_setenv("/env/profile/system_id", EA3_PCBID);

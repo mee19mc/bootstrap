@@ -14,13 +14,13 @@ BEGIN
         BLOCK "080904E4"
         BEGIN
             VALUE "CompanyName", ""
-            VALUE "FileDescription", "SpiceTools"
-            VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "spice64"
-            VALUE "LegalCopyright", ""
-            VALUE "OriginalFilename", "spice64.exe"
-            VALUE "ProductName", "SpiceTools"
-            VALUE "ProductVersion", "1.0.0.0"
+            VALUE "FileDescription", "bootstrap"
+            VALUE "FileVersion", "1.5.3.0"
+            VALUE "InternalName", "bootstrap64"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2025 KONAMI Digital Entertainment Co.,Ltd."
+            VALUE "OriginalFilename", "bootstrap"
+            VALUE "ProductName", bootstrap
+            VALUE "ProductVersion", "1.5.3"
         END
     END
     BLOCK "VarFileInfo"
