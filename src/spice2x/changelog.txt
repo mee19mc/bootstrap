@@ -1,3 +1,26 @@
+08/21/2025 [spice2x]
+    DDR: check for common DLL errors
+    Supply default PCBID if absent
+    Rearrange options
+
+08/17/2025 [spice2x]
+    DDR: fix codec registration failure when path contains spaces
+
+08/11/2025 [spice2x]
+    SDVX: fix camera hook, remove -sdvxdisablecams
+    DDR: automatically register codecs in com folder on boot
+
+06/03/2025 [spice2x]
+    Add libshare-pj.dll to Gitadora patch import
+    Detect ACIO init failures
+
+05/31/2025 [spice2x]
+    IIDX: fix windowed subscreen not accepting mouse clicks when
+        overlay is active
+    IIDX: tape LED over API
+    Option to make command line args take precedence
+    UI tweaks
+
 05/09/2025 [spice2x]
     Check for window focus when processing input (-inputfocus)
     More options for IIDX/SDVX windowed subscreen

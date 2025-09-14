@@ -27,6 +27,7 @@ namespace games::ddr {
 
     // settings
     bool SDMODE = false;
+    bool NO_CODEC_REGISTRATION = false;
 
     uint8_t DDR_TAPELEDS[TAPELED_DEVICE_COUNT][50][3] {};
 
@@ -49,8 +50,78 @@ namespace games::ddr {
         return SendMessage_real(hWnd, Msg, wParam, lParam);
     }
 
+    bool contains_only_ascii(const std::string& str) {
+        for (auto c: str) {
+            if (static_cast<unsigned char>(c) > 127) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     DDRGame::DDRGame() : Game("Dance Dance Revolution") {
     }
+
+    void DDRGame::register_codecs() {
+        // find where spice.exe / spice64.exe is located
+        const auto &spice_bin_path = libutils::module_file_name(nullptr).parent_path();
+
+        // find the com directory
+        std::filesystem::path dir = "";
+        if (MODULE_PATH == spice_bin_path) {
+            // try: \com
+            dir = spice_bin_path / "com";
+        } else {
+            // try: modules\..\com
+            dir = MODULE_PATH / ".." / "com";
+        }
+
+        if (fileutils::dir_exists(dir)) {
+            log_info("ddr", "looking for codecs in this directory: {}", dir.string());
+        } else {
+            log_info("ddr", "codecs directory not found: {}", dir.string());
+            return;
+        }
+
+        for (const auto &file : std::filesystem::directory_iterator(dir)) {
+            const auto &filename = file.path().filename();
+            const auto extension = strtolower(filename.extension().string());
+
+            if (extension != ".dll") {
+                continue;
+            }
+
+            log_info("ddr", "found DLL: {}, size: {} bytes", filename.string(), file.file_size());
+            if (filename == "k-clvsd.dll" || filename.string().find("xactengine") == 0) {
+                const std::wstring wcmd = L"regsvr32.exe /s \"" + file.path().wstring() + L"\"";
+                const std::string cmd = "regsvr32.exe /s \"" + file.path().string() + "\"";
+
+                int result = 0;
+                std::thread t([wcmd, &result]() {
+                    result = _wsystem(wcmd.c_str());
+                });
+                t.join();
+
+                if (result == 0) {
+                    log_info("ddr", "`{}` returned {}", cmd, result);
+                } else {
+                    log_warning("ddr", "`{}` failed, returned {}", cmd, result);
+                }
+
+                if (!contains_only_ascii(file.path().string())) {
+                    log_warning(
+                        "ddr",
+                        "BAD PATH ERROR\n\n\n"
+                        "!!!                                                          !!!\n"
+                        "!!! filesystem path to codec contains non-ASCII characters!  !!!\n"
+                        "!!! this may cause the game to crash!                        !!!\n"
+                        "!!!                                                          !!!\n"
+                        );
+                }
+            }
+        }
+    }
+    
 
     void DDRGame::pre_attach() {
         if (!cfg::CONFIGURATOR_STANDALONE && avs::game::is_model("TDX")) {
@@ -86,6 +157,17 @@ namespace games::ddr {
                 "!!!                                                               !!!\n"
                 "!!!                                                               !!!\n\n\n"
                 );
+        }
+
+        if (!cfg::CONFIGURATOR_STANDALONE) {
+            if (!NO_CODEC_REGISTRATION) {
+                this->register_codecs();
+            } else {
+                log_warning(
+                    "ddr",
+                    "skipping codec registration (-ddrnocodec), "
+                    "game may crash if you didn't register codecs before launching the game");
+            }
         }
     }
 

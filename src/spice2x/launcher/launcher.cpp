@@ -150,6 +150,9 @@ static bool check_dll(const std::string &model) {
 
 void update_msvcrt_args(int argc, char *argv[]);
 
+void dump_button_bindings(std::vector<Button> *buttons);
+void dump_analog_bindings();
+
 int main_implementation(int argc, char *argv[]) {
 
     // remember argv, argv
@@ -430,9 +433,6 @@ int main_implementation(int argc, char *argv[]) {
     if (options[launcher::Options::LoadSoundVoltexModule].value_bool()) {
         attach_sdvx = true;
     }
-    if (options[launcher::Options::SDVXDisableCameras].value_bool()) {
-        games::sdvx::DISABLECAMS = true;
-    }
     if (options[launcher::Options::SDVXNativeTouch].value_bool()) {
         games::sdvx::NATIVETOUCH = true;
     }
@@ -628,6 +628,9 @@ int main_implementation(int argc, char *argv[]) {
     }
     if (options[launcher::Options::DDR43Mode].value_bool()) {
         games::ddr::SDMODE = true;
+    }
+    if (options[launcher::Options::DDRSkipCodecRegisteration].value_bool()) {
+        games::ddr::NO_CODEC_REGISTRATION = true;
     }
     if (options[launcher::Options::LoadSteelChronicleModule].value_bool()) {
         attach_sc = true;
@@ -1912,6 +1915,10 @@ int main_implementation(int argc, char *argv[]) {
     libutils::warn_if_dll_exists("d3d12.dll");
     libutils::warn_if_dll_exists("dxgi.dll");
     libutils::warn_if_dll_exists("opengl32.dll");
+    libutils::warn_if_dll_exists("nvcuda.dll");
+    libutils::warn_if_dll_exists("nvcuvid.dll");
+    libutils::warn_if_dll_exists("nvEncodeAPI64.dll");
+    libutils::warn_if_dll_exists("msvcr100.dll");
 
     // complain loudly & early about dll load ordering issue
     libutils::check_duplicate_dlls();
@@ -1932,6 +1939,21 @@ int main_implementation(int argc, char *argv[]) {
 
     // print devices
     RI_MGR->devices_print();
+
+    auto buttons = games::get_buttons(eamuse_get_game());
+    log_misc("rawinput", "Button mappings:");
+    dump_button_bindings(buttons);
+
+    log_misc("rawinput", "Keypad button mappings:");
+    auto keypads = games::get_buttons_keypads(eamuse_get_game());
+    dump_button_bindings(keypads);
+
+    log_misc("rawinput", "Overlay button mappings:");
+    auto overlay_buttons = games::get_buttons_overlay(eamuse_get_game());
+    dump_button_bindings(overlay_buttons);
+
+    log_misc("rawinput", "Analog mappings:");
+    dump_analog_bindings();
 
     // for certain games, show cursor if no touch is available (must be called after RI_MGR is available)
     if (show_cursor_if_no_touch && !is_touch_available("launcher::main_implementation")) {
@@ -2074,15 +2096,6 @@ int main_implementation(int argc, char *argv[]) {
         networkhook_init();
     }
 
-    // layeredfs
-    if (fileutils::dir_exists("data_mods") &&
-        !fileutils::file_exists("ifs_hook.dll") &&
-        !fileutils::file_exists(MODULE_PATH / "ifs_hook.dll")) {
-        log_warning("launcher", "data_mods directory was found, but ifs_hook.dll is not present; your mods will not load");
-        log_warning("launcher", "to fix this, download ifs_layeredfs and add it as a DLL hook (-k)");
-        log_warning("launcher", "https://github.com/mon/ifs_layeredfs");
-    }
-
     update_msvcrt_args(argc, argv);
 
     // load hooks
@@ -2094,6 +2107,14 @@ int main_implementation(int argc, char *argv[]) {
         } else {
             bt5api_hook(module);
         }
+    }
+
+    // layeredfs
+    if (fileutils::dir_exists("data_mods") &&
+        GetModuleHandleA("ifs_hook.dll") == nullptr) {
+        log_warning("launcher", "data_mods directory was found, but ifs_hook.dll is not present; your mods will not load");
+        log_warning("launcher", "to fix this, download ifs_layeredfs and add it as a DLL hook (-k)");
+        log_warning("launcher", "https://github.com/mon/ifs_layeredfs");
     }
 
     // apply patches
@@ -2316,6 +2337,65 @@ void update_msvcrt_args(int argc, char *argv[]) {
 #else
     log_misc("launcher", "not UCRT, skipping msvcrt!_argc / _argv hacks");
 #endif
+}
+
+void dump_button_bindings(std::vector<Button> *buttons) {
+    if (!buttons) {
+        return;
+    }
+
+    for (auto button = buttons->begin(); button != buttons->end(); ++button) {
+        if (!button->isSet()) {
+            continue;
+        }
+
+        if (button->isNaive()) {
+            log_misc(
+                "rawinput", "    [{}] dev=Naive, vkey={}",
+                button->getName(),
+                button->getVKey()
+                );
+        } else {
+            log_misc(
+                "rawinput", "    [{}] dev={}, vkey={}, analogtype={}",
+                button->getName(),
+                button->getDeviceIdentifier(),
+                button->getVKey(),
+                button->getAnalogType()
+                );
+        }
+
+        for (auto& alt : button->getAlternatives()) {
+            if (alt.getVKey() == INVALID_VKEY) {
+                continue;
+            }
+            log_misc(
+                "rawinput", "    [{}] (alt) dev={}, vkey={}, analogtype={}",
+                button->getName(),
+                alt.isNaive() ? "Naive" : alt.getDeviceIdentifier(),
+                alt.getVKey(),
+                alt.getAnalogType()
+                );
+        }
+    }
+}
+
+void dump_analog_bindings() {
+    auto analogs = games::get_analogs(eamuse_get_game());
+    if (!analogs) {
+        return;
+    }
+    for (auto& analog : *analogs) {
+        if (!analog.isSet()) {
+            continue;
+        }
+        log_misc(
+            "rawinput", "    [{}] dev={}, index={}",
+            analog.getName(),
+            analog.getDeviceIdentifier(),
+            analog.getIndex()
+            );
+    }
 }
 
 #ifndef SPICETOOLS_SPICECFG_STANDALONE
