@@ -72,7 +72,7 @@ namespace games::gitadora {
         } else if (strcmp(cmdline, "-AOU") == 0) {
             return false;
         } else if (strcmp(cmdline, "-QCMODE") == 0) {
-            return false;
+            return true;
         } else if (strcmp(cmdline, "-FACTORY") == 0) {
             return false;
         }

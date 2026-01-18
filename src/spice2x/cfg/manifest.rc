@@ -14,12 +14,12 @@ BEGIN
         BLOCK "080904E4"
         BEGIN
             VALUE "CompanyName", ""
-            VALUE "FileDescription", "SpiceTools Configuration Utility"
+            VALUE "FileDescription", "BOOTSTRAP Configuration Utility"
             VALUE "FileVersion", "1.0.0.0"
-            VALUE "InternalName", "spicecfg"
+            VALUE "InternalName", "avscfg"
             VALUE "LegalCopyright", ""
-            VALUE "OriginalFilename", "spicecfg.exe"
-            VALUE "ProductName", "SpiceTools Configuration"
+            VALUE "OriginalFilename", "bootstrapcfg.exe"
+            VALUE "ProductName", "BOOTSTRAP Utils"
             VALUE "ProductVersion", "1.0.0.0"
         END
     END

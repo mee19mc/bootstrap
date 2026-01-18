@@ -271,7 +271,7 @@ namespace avs {
 
             // set soft ID
             if (ea3_id_soft == nullptr) {
-                strncpy(EA3_SOFTID, "012199999999", sizeof(EA3_SOFTID));
+                strncpy(EA3_SOFTID, "012191865538", sizeof(EA3_SOFTID));
                 EA3_SOFTID[20] = '\0';
                 avs::core::property_node_create(ea3_config, nullptr,
                         avs::core::NODE_TYPE_str, "/ea3/id/softid", EA3_SOFTID);
@@ -318,7 +318,7 @@ namespace avs {
 
             // set account id (`EA3_PCBID` is valid if and only if `/ea3/id` is present)
             if (ea3_id != nullptr && ea3_id_account == nullptr) {
-                const char *id = strcmp(EA3_MODEL, "M32") == 0 ? EA3_PCBID : "012018008135";
+                const char *id = strcmp(EA3_MODEL, "M32") == 0 ? EA3_PCBID : "012191865535";
 
                 strncpy(EA3_ACCOUNTID, id, sizeof(EA3_ACCOUNTID));
                 EA3_ACCOUNTID[20] = '\0';
