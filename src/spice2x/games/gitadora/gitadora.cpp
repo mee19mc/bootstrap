@@ -109,7 +109,7 @@ namespace games::gitadora {
         } else if (strcmp(cmdline, "-SD2") == 0) {
             return true;
         } else if (strcmp(cmdline, "-QCMODE") == 0) {
-            return true;
+            return false;
         } else if (strcmp(cmdline, "-FACTORY") == 0) {
             return false;
         }
